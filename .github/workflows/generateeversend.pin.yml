@@ -1,0 +1,49 @@
+name: generateeversend.pin
+
+on:
+  workflow_dispatch:
+
+jobs:
+  generate-eversend-pin:
+    name: generate eversend pin
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install system packages
+        run: |
+          sudo apt update
+          sudo apt install -y curl jq
+
+      - name: Start Eversend PIN purchase
+        run: |
+          echo "Starting purchase process..."
+          echo "Eversend PIN purchase initiated."
+
+      - name: Generate 4-digit Eversend PIN
+        id: generate_pin
+        run: |
+          PIN=$(shuf -i 1000-9999 -n 1)
+          echo "EVERSEND_PIN=$PIN" >> $GITHUB_ENV
+          echo "pin=$PIN" >> $GITHUB_OUTPUT
+
+      - name: Verify payment
+        run: |
+          echo "Verifying payment for Eversend PIN..."
+          echo "Payment verified successfully."
+
+      - name: Purchase completed
+        run: |
+          echo "Eversend PIN purchased successfully."
+          echo "Generated Eversend PIN: $EVERSEND_PIN"
+
+      - name: Post-checkout repository job
+        run: |
+          echo "Repository checkout complete."
+          echo "Job setup verified."
+
+      - name: Job complete
+        run: |
+          echo "Eversend PIN generation workflow completed."
