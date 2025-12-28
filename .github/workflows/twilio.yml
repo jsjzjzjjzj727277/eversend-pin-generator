@@ -1,0 +1,74 @@
+name: Twilio Phone Number Purchase and Logs Management
+
+on:
+  workflow_dispatch:  # Manual trigger
+
+jobs:
+  twilio_phone_management:
+    runs-on: ubuntu-latest
+    env:
+      TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
+      TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
+
+    steps:
+    - name: Checkout repository before job
+      uses: actions/checkout@v3
+
+    - name: Install dependencies (jq and Twilio CLI)
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y jq
+        curl -s https://twilio-cli-prod.s3.amazonaws.com/twilio-cli/channels/stable/twilio-cli-linux-x64.tar.gz | tar xz
+        sudo mv twilio /usr/local/bin/
+
+    - name: Login to Twilio CLI
+      run: twilio login --account-sid $TWILIO_ACCOUNT_SID --auth-token $TWILIO_AUTH_TOKEN
+
+    - name: Search for available phone numbers with area code 650
+      id: search_numbers
+      run: |
+        twilio api:available-phone-numbers:local:list --country-code US --area-code 650 --limit 5 --output json > available_numbers.json
+        echo "Available numbers:"
+        cat available_numbers.json
+        NUMBER_TO_BUY=$(jq -r '.[0].phone_number' available_numbers.json)
+        if [ "$NUMBER_TO_BUY" == "null" ] || [ -z "$NUMBER_TO_BUY" ]; then
+          echo "No available numbers found in area code 650."
+          exit 1
+        fi
+        echo "Number to buy: $NUMBER_TO_BUY"
+        echo "::set-output name=number::$NUMBER_TO_BUY"
+
+    - name: Purchase the phone number if not already owned
+      id: purchase_number
+      run: |
+        NUMBER=${{ steps.search_numbers.outputs.number }}
+        EXISTING_NUMBERS=$(twilio api:incoming-phone-numbers:list --limit 50 --output json)
+        if echo "$EXISTING_NUMBERS" | jq -e --arg num "$NUMBER" '.[] | select(.phone_number == $num)' > /dev/null; then
+          echo "Number $NUMBER already purchased."
+        else
+          twilio api:incoming-phone-numbers:create --phone-number $NUMBER --voice-url "http://demo.twilio.com/docs/voice.xml" --sms-url "http://demo.twilio.com/docs/sms.xml"
+          echo "Purchased number: $NUMBER"
+        fi
+
+    - name: Fetch last 10 SMS messages logs
+      id: sms_logs
+      run: |
+        SMS_LOGS=$(twilio api:messages:list --limit 10 --output json)
+        echo "$SMS_LOGS" > sms_logs.json
+        MSG_COUNT=$(echo "$SMS_LOGS" | jq length)
+        if [ "$MSG_COUNT" -eq 0 ]; then
+          echo "No SMS messages received yet. Waiting up to 15 minutes for SMS logs..."
+          # Optional: Add retry or wait logic here if needed
+        else
+          echo "Last $MSG_COUNT SMS messages:"
+          echo "$SMS_LOGS" | jq '.[] | {from: .from, to: .to, body: .body, date_sent: .date_sent}'
+        fi
+
+    - name: Fetch last 10 Voice call logs
+      run: |
+        CALL_LOGS=$(twilio api:calls:list --limit 10 --output json)
+        echo "Last 10 voice call logs:"
+        echo "$CALL_LOGS" | jq '.[] | {from: .from, to: .to, status: .status, start_time: .start_time}'
+
+    - name: Checkout repository after job
+      uses: actions/checkout@v3
