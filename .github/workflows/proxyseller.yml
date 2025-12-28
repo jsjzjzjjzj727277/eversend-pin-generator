@@ -1,0 +1,59 @@
+name: Proxy Seller Try Free Proxy
+
+on:
+  workflow_dispatch:
+
+jobs:
+  proxy_seller:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Start Proxy Seller Job
+      run: echo "Starting proxy seller job for free proxy trial..."
+
+    - name: Setup Proxy Connection Details
+      id: proxy_details
+      run: |
+        echo "Country=United States" >> proxy.txt
+        echo "Location=New York" >> proxy.txt
+        echo "IP=94.131.49.103" >> proxy.txt
+        echo "Connection=4G/5G" >> proxy.txt
+        echo "HTTPS_Port=50100" >> proxy.txt
+        echo "SOCKS5_Port=50101" >> proxy.txt
+        echo "Username=MEyqFWNz" >> proxy.txt
+        echo "Password=W5LpXZHAkm" >> proxy.txt
+
+        echo "::set-output name=country::United States"
+        echo "::set-output name=location::New York"
+        echo "::set-output name=ip::94.131.49.103"
+        echo "::set-output name=connection::4G/5G"
+        echo "::set-output name=https_port::50100"
+        echo "::set-output name=socks5_port::50101"
+        echo "::set-output name=username::MEyqFWNz"
+        echo "::set-output name=password::W5LpXZHAkm"
+
+    - name: Simulate Purchase Proxy Seller
+      run: |
+        echo "Purchasing proxy seller service..."
+        sleep 5
+        echo "Purchase successful."
+
+    - name: Verify Payment
+      run: |
+        echo "Verifying payment..."
+        sleep 3
+        echo "Payment verified successfully."
+
+    - name: Complete Proxy Seller Job
+      run: |
+        echo "Proxy seller job completed successfully."
+        echo "Proxy details:"
+        echo "Country: ${{ steps.proxy_details.outputs.country }}"
+        echo "Location: ${{ steps.proxy_details.outputs.location }}"
+        echo "IP: ${{ steps.proxy_details.outputs.ip }}"
+        echo "Connection: ${{ steps.proxy_details.outputs.connection }}"
+        echo "HTTPS Port: ${{ steps.proxy_details.outputs.https_port }}"
+        echo "SOCKS5 Port: ${{ steps.proxy_details.outputs.socks5_port }}"
+        echo "Username: ${{ steps.proxy_details.outputs.username }}"
+        echo "Password: ${{ steps.proxy_details.outputs.password }}"
+ 
