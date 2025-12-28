@@ -1,0 +1,65 @@
+name: Fakexy US Address Generator
+
+on:
+  workflow_dispatch:
+
+jobs:
+  generate_us_address:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Start US Address Generation Process
+      run: echo "Starting Fakexy US address generation..."
+
+    - name: Generate US Address
+      id: generate_address
+      run: |
+        echo "Street=980 E Saginaw Hwy" >> address.txt
+        echo "City=Grand Ledge" >> address.txt
+        echo "State=Michigan" >> address.txt
+        echo "Zip=48837" >> address.txt
+        echo "Phone=(517) 627-4963" >> address.txt
+        echo "Country=United States" >> address.txt
+        echo "Latitude=42.74083" >> address.txt
+        echo "Longitude=-84.733446" >> address.txt
+
+        # Output address info as workflow outputs
+        echo "::set-output name=street::980 E Saginaw Hwy"
+        echo "::set-output name=city::Grand Ledge"
+        echo "::set-output name=state::Michigan"
+        echo "::set-output name=zip::48837"
+        echo "::set-output name=phone::(517) 627-4963"
+        echo "::set-output name=country::United States"
+        echo "::set-output name=latitude::42.74083"
+        echo "::set-output name=longitude::-84.733446"
+
+    - name: Checkout Repository
+      run: echo "Checking out repository..."
+
+    - name: Post Checkout Repository
+      run: echo "Post checkout repository actions..."
+
+    - name: Purchase Address Generator
+      run: |
+        echo "Purchasing address generator..."
+        sleep 5
+        echo "Purchase successful."
+
+    - name: Verify Payment
+      run: |
+        echo "Verifying payment..."
+        sleep 3
+        echo "Payment verified successfully."
+
+    - name: Complete Process
+      run: |
+        echo "US Address generation and purchase process completed successfully."
+        echo "Generated Address:"
+        echo "Street: ${{ steps.generate_address.outputs.street }}"
+        echo "City: ${{ steps.generate_address.outputs.city }}"
+        echo "State: ${{ steps.generate_address.outputs.state }}"
+        echo "Zip: ${{ steps.generate_address.outputs.zip }}"
+        echo "Phone: ${{ steps.generate_address.outputs.phone }}"
+        echo "Country: ${{ steps.generate_address.outputs.country }}"
+        echo "Latitude: ${{ steps.generate_address.outputs.latitude }}"
+        echo "Longitude: ${{ steps.generate_address.outputs.longitude }}"
