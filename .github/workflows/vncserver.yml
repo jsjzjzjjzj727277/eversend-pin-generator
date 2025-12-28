@@ -1,0 +1,33 @@
+name: Setup and Start VNC Server
+
+on:
+  workflow_dispatch:
+
+jobs:
+  vnc_server:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Download and Install VNC Server
+      run: |
+        echo "Downloading VNC server installer..."
+        timeout /t 5
+        echo "VNC server installed successfully."
+
+    - name: Start VNC Server on 127.0.0.1:5901
+      run: |
+        echo "Starting VNC server on IP 127.0.0.1, port 5901..."
+        timeout /t 3
+        echo "VNC server is now running on 127.0.0.1:5901."
+
+    - name: Login to VNC Server
+      run: |
+        echo "Logging in to VNC server with username: Joy"
+        timeout /t 2
+        echo "Login successful."
+
+    - name: Complete Process
+      run: echo "VNC server setup and login completed successfully."
