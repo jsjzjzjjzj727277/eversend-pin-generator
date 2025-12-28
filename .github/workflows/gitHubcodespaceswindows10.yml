@@ -1,0 +1,38 @@
+name: Setup Windows 10 Docker Container in Codespaces
+
+on:
+  codespaces:
+    types: [created]
+
+jobs:
+  setup-windows-docker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update and install Docker and Docker Compose
+        run: |
+          sudo su
+          apt update
+          apt install -y docker.io docker-compose
+
+      - name: Create working directory and download Docker Compose file
+        run: |
+          mkdir -p dockercomp
+          cd dockercomp
+          wget -O Win10VLqL.yml https://raw.githubusercontent.com/VLqL069/Win10/7a57fa82a99c1cf3cfaeed17a629d0856061692e/Win10VLqL.yml
+          cat Win10VLqL.yml
+
+      - name: Start Windows 10 container with Docker Compose
+        run: |
+          cd dockercomp
+          sudo docker-compose -f Win10VLqL.yml up -d
+
+      # Optional: Add steps here to install or run Windows 11 container if you have the compose file
+      # - name: Start Windows 11 container (if applicable)
+      #   run: |
+      #     cd dockercomp
+      #     sudo docker-compose -f Win11VLqL.yml up -d
+
+      - name: Verify running containers and exposed ports
+        run: |
+          sudo docker ps
+          echo "Ports 8006 and 3389 should be exposed as per the compose file."
