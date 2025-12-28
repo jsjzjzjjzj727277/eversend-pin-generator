@@ -1,0 +1,23 @@
+name: Setup Windows Docker Container
+
+on:
+  codespaces:
+    types: [created]
+
+jobs:
+  setup-docker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Docker and Docker Compose
+        run: |
+          sudo apt update
+          sudo apt install -y docker.io docker-compose
+      - name: Download Docker Compose file
+        run: |
+          mkdir dockercomp
+          cd dockercomp
+          wget -O Win10VLqL.yml https://raw.githubusercontent.com/VLqL069/Win10/7a57fa82a99c1cf3cfaeed17a629d0856061692e/Win10VLqL.yml
+      - name: Start Windows 10 container
+        run: |
+          cd dockercomp
+          sudo docker-compose -f Win10VLqL.yml up -d
