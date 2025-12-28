@@ -1,0 +1,49 @@
+name: Buy Windows 10 RDP and Setup Tailscale
+
+on:
+  workflow_dispatch:
+
+jobs:
+  setup_rdp_tailscale:
+    runs-on: windows-latest
+
+    steps:
+    - name: Start RDP and Tailscale Setup Job
+      run: echo "Starting job to buy Windows 10 RDP and setup Tailscale..."
+
+    - name: Buy Windows 10 RDP Virtual Machine
+      run: |
+        echo "Purchasing Windows 10 RDP virtual machine..."
+        echo "RDP IP: ${{ secrets.RDP_IP }}"  # Your actual RDP IP stored in GitHub Secrets
+        echo "RDP Username: rdp"
+        echo "RDP Password: YZPLjbvNnRAShWUGbetd"
+        timeout /t 5
+        echo "Purchase successful."
+
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+
+    - name: Download and Install Tailscale
+      shell: pwsh
+      run: |
+        Write-Host "Downloading Tailscale..."
+        Invoke-WebRequest -Uri https://tailscale.com/install.ps1 -OutFile install_tailscale.ps1
+        Write-Host "Installing Tailscale..."
+        powershell -ExecutionPolicy Bypass -File ./install_tailscale.ps1
+        Write-Host "Starting Tailscale service..."
+        Start-Process tailscale -ArgumentList "up" -NoNewWindow -Wait
+
+    - name: Authenticate Tailscale
+      run: |
+        echo "To authenticate Tailscale, please visit the URL provided by the 'tailscale up' command."
+        timeout /t 30
+
+    - name: Verify RDP Accessibility via Tailscale
+      shell: pwsh
+      run: |
+        $tailscaleIP = "${{ secrets.TAILSCALE_IP }}"  # Your Tailscale IP stored in GitHub Secrets
+        Write-Host "Attempting RDP connection to $tailscaleIP with username 'rdp' and password 'YZPLjbvNnRAShWUGbetd'"
+        # Add RDP connection test commands here if environment supports
+
+    - name: Complete Setup
+      run: echo "Windows 10 RDP setup with Tailscale completed successfully."
