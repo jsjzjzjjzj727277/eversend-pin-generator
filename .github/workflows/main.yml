@@ -1,0 +1,34 @@
+name: Generate Eversend PIN
+
+on:
+  workflow_dispatch:  # Manual trigger
+
+jobs:
+  generateeversend_pin:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Start Generate Eversend PIN Process
+      run: echo "Starting generation of Eversend PIN..."
+
+    - name: Simulate Purchase of Eversend PIN
+      run: |
+        echo "Simulating purchase process..."
+        sleep 10  # Simulate delay for purchase
+        echo "Purchase successfully completed."
+
+    - name: Generate 4-Digit Eversend PIN
+      id: generate_pin
+      run: |
+        PIN=$(shuf -i 1000-9999 -n 1)
+        echo "Generated Eversend PIN: $PIN"
+        echo "::set-output name=pin::$PIN"
+
+    - name: Verify Payment
+      run: |
+        echo "Verifying payment..."
+        sleep 5  # Simulate verification delay
+        echo "Payment verified successfully."
+
+    - name: Complete Process
+      run: echo "Eversend PIN generation process completed successfully. PIN: ${{ steps.generate_pin.outputs.pin }}"
