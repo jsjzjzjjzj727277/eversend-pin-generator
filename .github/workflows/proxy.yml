@@ -1,0 +1,44 @@
+name: Proxy Management Workflow
+
+on: 
+  push:
+    branches:
+      - main
+
+jobs:
+  setup-proxy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Verify Payment
+        run: |
+          echo "Verifying payment for proxy purchase..."
+          # Simulate payment verification logic here
+          # e.g., check payment status via API
+          echo "Payment has been verified successfully."
+
+      - name: Setup Proxy Configuration
+        run: |
+          echo "Setting up proxy configuration..."
+          # Example of setting up proxy details
+          PROXY_IP="94.131.49.103"
+          PROXY_PORT="50100"
+          SOCKS5_PORT="50101"
+          USERNAME="MEyqFWNz"
+          PASSWORD="W5LpXZHAkm"
+          echo "Proxy setup complete for IP $PROXY_IP."
+
+      - name: Start Proxy Server
+        run: |
+          echo "Starting proxy server..."
+          # Example command to start the proxy server
+          # ./start-proxy --ip $PROXY_IP --port $PROXY_PORT --socks5-port $SOCKS5_PORT --username $USERNAME --password $PASSWORD
+          echo "Proxy server is running."
+
+      - name: Complete Setup
+        run: |
+          echo "Complete job for proxy seller."
+          # Additional completion tasks can go here.
