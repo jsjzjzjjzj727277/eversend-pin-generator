@@ -1,0 +1,4 @@
+import random
+
+generated_pin = str(random.randint(1000, 9999))
+print("Generated PIN:", generated_pin)
