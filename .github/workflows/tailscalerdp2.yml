@@ -1,0 +1,89 @@
+name: Buy RDP - Windows 10 Tailscale Cloud PC
+
+on:
+  workflow_dispatch:
+
+jobs:
+  # ------------------------------
+  # Linux system packages (apt)
+  # ------------------------------
+  linux-packages:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install system packages (apt)
+        run: |
+          sudo apt update
+          sudo apt install -y curl wget git unzip
+
+  # ------------------------------
+  # Windows 10 RDP over Tailscale
+  # ------------------------------
+  secure-rdp:
+    runs-on: windows-latest
+    needs: linux-packages
+    timeout-minutes: 3600
+
+    env:
+      RDP_USER: rdp
+      RDP_PASSWORD: ${{ secrets.RDP_PASSWORD }}
+      TAILSCALE_AUTHKEY: ${{ secrets.TAILSCALE_AUTHKEY }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure Core RDP Settings
+        shell: powershell
+        run: |
+          Write-Host "Enabling RDP..."
+          Set-ItemProperty `
+            -Path "HKLM:\System\CurrentControlSet\Control\Terminal Server" `
+            -Name "fDenyTSConnections" -Value 0
+          Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
+
+      - name: Create RDP User with Secure Password
+        shell: powershell
+        run: |
+          net user $env:RDP_USER $env:RDP_PASSWORD /add
+          net localgroup administrators $env:RDP_USER /add
+
+      - name: Install Tailscale
+        shell: powershell
+        run: |
+          Invoke-WebRequest `
+            -Uri "https://pkgs.tailscale.com/stable/tailscale-setup-latest.exe" `
+            -OutFile "tailscale.exe"
+          Start-Process -FilePath "tailscale.exe" -ArgumentList "/quiet" -Wait
+
+      - name: Establish Tailscale Connection
+        shell: powershell
+        run: |
+          & "C:\Program Files\Tailscale\tailscale.exe" up `
+            --authkey=$env:TAILSCALE_AUTHKEY `
+            --hostname=cloud-pc-rdp
+
+      - name: Get Tailscale IP
+        shell: powershell
+        run: |
+          $ip = & "C:\Program Files\Tailscale\tailscale.exe" ip -4
+          echo "TAILSCALE_IP=$ip" >> $env:GITHUB_ENV
+
+      - name: Verify RDP Accessibility
+        shell: powershell
+        run: |
+          Write-Host "`n=== RDP ACCESS ==="
+          Write-Host "Tailscale IP: $env:TAILSCALE_IP"
+          Write-Host "Username: RDP"
+          Write-Host "Password: [HIDDEN]"
+          Write-Host "==================`n"
+
+      - name: Maintain Connection
+        shell: powershell
+        run: |
+          while ($true) {
+            Write-Host "[$(Get-Date)] RDP Active - Use Ctrl+C in workflow to terminate"
+            Start-Sleep -Seconds 300
+          }
